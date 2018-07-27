@@ -3,9 +3,9 @@
 setlocal
 
 set _PS_LUA_PATH=%~dp0\thirdparty\luajit
-set _PS_LPEG_PATH=%~dp0\thirdparty\lpeg
-set _PS_LFS_PATH=%~dp0\thirdparty\lfs
-set _PS_UUID_PATH=%~dp0\thirdparty\uuid
+set _PS_LPEG_PATH=%~dp0\modules\lpeg
+set _PS_LFS_PATH=%~dp0\modules\lfs
+set _PS_UUID_PATH=%~dp0\modules\uuid
 set _PS_RUNTIME_PATH=%~dp0\runtime
 
 call:Print "Building LuaJIT"
@@ -21,8 +21,8 @@ call:Print "Building UUID module"
   gcc -O2 -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 >nul 2>&1
 
 call:Print "Finalizing"
-  rd /s /q %_PS_RUNTIME_PATH%
-  mkdir %_PS_RUNTIME_PATH%
+  rd /s /q %_PS_RUNTIME_PATH% >nul 2>&1
+  mkdir %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUA_PATH%\src\luajit.exe %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUA_PATH%\src\lua51.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LPEG_PATH%\lpeg.dll %_PS_RUNTIME_PATH% >nul 2>&1

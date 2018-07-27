@@ -12,6 +12,7 @@ local add_search_path = (function ()
   for _, v in ipairs({
     "../thirdparty/argparse/",
     "../thirdparty/moonscript/",
+    "../hardware/",
   }) do
     package.path = package.path .. ';' .. v .. "?.lua"
   end

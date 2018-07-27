@@ -12,5 +12,7 @@
 *.swp
 .tags
 
-*.ls
 runtime/
+thirdparty/
+*.ls
+*.moon

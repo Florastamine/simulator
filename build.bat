@@ -2,6 +2,10 @@
 
 setlocal
 
+if not exist .\thirdparty\luajit\Makefile (
+  call .\prebuild.bat
+)
+
 set _PS_LUA_PATH=%~dp0\thirdparty\luajit
 set _PS_LPEG_PATH=%~dp0\modules\lpeg
 set _PS_LFS_PATH=%~dp0\modules\lfs

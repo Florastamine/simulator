@@ -6,6 +6,7 @@ call:PreProcess
 call:Clone luajit https://github.com/LuaJIT/LuaJIT
 call:Clone moonscript https://github.com/leafo/moonscript
 call:Clone argparse https://github.com/mpeterv/argparse
+call:Clone lua-cjson https://github.com/mpx/lua-cjson
 call:PostProcess
 
 :Clone
@@ -21,6 +22,9 @@ call:PostProcess
 
 :PostProcess
   move .\thirdparty\argparse\src\argparse.lua .\thirdparty\argparse\
+  
+  del .\thirdparty\lua-cjson\dtoa*.*
+  del .\thirdparty\lua-cjson\g_fmt*.*
   exit /b
 
 endlocal

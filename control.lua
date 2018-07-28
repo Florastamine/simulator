@@ -13,6 +13,7 @@ local add_search_path = (function ()
     "../thirdparty/argparse/",
     "../thirdparty/moonscript/",
     "../hardware/",
+    "../vm/",
   }) do
     package.path = package.path .. ';' .. v .. "?.lua"
   end

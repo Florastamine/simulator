@@ -16,6 +16,21 @@ set _PS_LFS_PATH=%~dp0\modules\lfs
 set _PS_UUID_PATH=%~dp0\modules\uuid
 set _PS_RUNTIME_PATH=%~dp0\runtime
 
+call:Print "Building LuaJIT"
+  %_MAKE% --directory=%_PS_LUA_PATH% -j%_MAKE_PARALLEL% >nul 2>&1
+
+call:Print "Building LPeg"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_LPEG_PATH%\lpeg.dll %_PS_LPEG_PATH%\*.c -llua51 >nul 2>&1
+
+call:Print "Building LuaFileSystem"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_LFS_PATH%\lfs.dll %_PS_LFS_PATH%\*.c -llua51 >nul 2>&1
+
+call:Print "Building UUID module"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 >nul 2>&1
+
+call:Print "Building Lua CJSON"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_CJSON_PATH%\cjson.dll %_PS_CJSON_PATH%\*.c -llua51 >nul 2>&1
+
 call:Print "Building SDL2"
   rmdir /s /q %_PS_LUASDL2_PATH%\build >nul 2>&1
   mkdir %_PS_LUASDL2_PATH%\build >nul 2>&1
@@ -32,21 +47,6 @@ call:Print "Building SDL2"
   %_CMAKE% .. -G "MinGW Makefiles" -DWITH_MIXER=Off -DWITH_NET=Off -DWITH_DOCS=Off -DWITH_TTF=On -DWITH_IMAGE=On -DWITH_LUAVER=JIT -DSDL2_INCLUDE_DIR=%SDL_INCLUDE_DIR% -DSDL2_IMAGE_INCLUDE_DIR=%SDL_IMAGE_INCLUDE_DIR% -DSDL2_TTF_INCLUDE_DIR=%SDL_TTF_INCLUDE_DIR%
   popd
   %_MAKE% --directory=%_PS_LUASDL2_PATH%\build -j%_MAKE_PARALLEL%
-
-call:Print "Building LuaJIT"
-  %_MAKE% --directory=%_PS_LUA_PATH% -j%_MAKE_PARALLEL% >nul 2>&1
-
-call:Print "Building LPeg"
-  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_LPEG_PATH%\lpeg.dll %_PS_LPEG_PATH%\*.c -llua51 >nul 2>&1
-
-call:Print "Building LuaFileSystem"
-  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_LFS_PATH%\lfs.dll %_PS_LFS_PATH%\*.c -llua51 >nul 2>&1
-
-call:Print "Building UUID module"
-  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 >nul 2>&1
-
-call:Print "Building Lua CJSON"
-  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_CJSON_PATH%\cjson.dll %_PS_CJSON_PATH%\*.c -llua51 >nul 2>&1
 
 call:Print "Finalizing"
   rd /s /q %_PS_RUNTIME_PATH% >nul 2>&1

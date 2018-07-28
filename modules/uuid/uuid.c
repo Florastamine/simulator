@@ -10,7 +10,7 @@
 
 #include "uuid.h"
 
-#if PLATFORM_WINDOWS
+#if _WIN32
 #include <Objbase.h>
 #endif
 
@@ -67,7 +67,7 @@ static int get_uuid(lua_State* L)
 	/* If no name is supplied, try to build one properly */	
 	else
 	{
-#if PLATFORM_WINDOWS
+#if _WIN32
 		CoCreateGuid((GUID*)bytes);
 #else
 		int result;
@@ -95,12 +95,12 @@ static int get_uuid(lua_State* L)
 }
 
 static const struct luaL_Reg core_uuid[] = {
-  {"get", get_uuid},
+  {"uuid", get_uuid},
   {NULL, NULL},
 };
 
-UUID_EXPORT int luaopen_uuid(lua_State *L)
+EXPORT int luaopen_uuid(lua_State *L)
 {
-  luaL_openlib(L, "uuid", core_uuid, 0);
+  luaL_openlib(L, "os", core_uuid, 0);
   return 0;
 }

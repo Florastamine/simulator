@@ -27,7 +27,7 @@ call:Print "Building LuaFileSystem"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_LFS_PATH%\lfs.dll %_PS_LFS_PATH%\*.c -llua51 >nul 2>&1
 
 call:Print "Building UUID module"
-  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 >nul 2>&1
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 -lole32 >nul 2>&1
 
 call:Print "Building ZIP module"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_ZIP_PATH%\zip.dll %_PS_ZIP_PATH%\*.c -llua51 -lzip >nul 2>&1

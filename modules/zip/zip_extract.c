@@ -288,7 +288,7 @@ static const struct luaL_Reg core_zip[] = {
   {NULL, NULL},
 };
 
-ZIP_EXPORT int luaopen_zip(lua_State *L)
+EXPORT int luaopen_zip(lua_State *L)
 {
   luaL_openlib(L, "zip", core_zip, 0);
   return 0;

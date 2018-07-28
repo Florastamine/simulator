@@ -1,5 +1,7 @@
 @echo off
 
+call vars.bat
+
 setlocal
 
 call:PreProcess

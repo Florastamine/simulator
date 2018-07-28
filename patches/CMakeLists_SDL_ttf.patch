@@ -1,0 +1,12 @@
+*** CMakeLists.txt	Sat Jul 28 14:10:19 2018
+--- CMakeLists2.txt	Sat Jul 28 14:09:43 2018
+***************
+*** 49,54 ****
+--- 49,55 ----
+  target_link_libraries(
+  	ttf
+  	common
++   luajit-5.1
+  	${SDL2_LIBRARY}
+  	${SDL2_TTF_LIBRARY}
+  )

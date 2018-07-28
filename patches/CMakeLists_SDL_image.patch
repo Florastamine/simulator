@@ -1,0 +1,12 @@
+*** CMakeLists.txt	Sun Jul 22 02:28:42 2018
+--- CMakeLists2.txt	Sat Jul 28 13:59:11 2018
+***************
+*** 44,49 ****
+--- 44,50 ----
+  target_link_libraries(
+  	image
+  	common
++   luajit-5.1
+  	${SDL2_LIBRARY}
+  	${SDL2_IMAGE_LIBRARY}
+  )

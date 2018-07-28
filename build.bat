@@ -13,6 +13,7 @@ set _PS_LUASDL2_PATH=%~dp0\thirdparty\luasdl2
 set _PS_CJSON_PATH=%~dp0\thirdparty\lua-cjson
 set _PS_LPEG_PATH=%~dp0\modules\lpeg
 set _PS_LFS_PATH=%~dp0\modules\lfs
+set _PS_ZIP_PATH=%~dp0\modules\zip
 set _PS_UUID_PATH=%~dp0\modules\uuid
 set _PS_RUNTIME_PATH=%~dp0\runtime
 
@@ -27,6 +28,9 @@ call:Print "Building LuaFileSystem"
 
 call:Print "Building UUID module"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 >nul 2>&1
+
+call:Print "Building ZIP module"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_ZIP_PATH%\zip.dll %_PS_ZIP_PATH%\*.c -llua51 -lzip >nul 2>&1
 
 call:Print "Building Lua CJSON"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_CJSON_PATH%\cjson.dll %_PS_CJSON_PATH%\*.c -llua51 >nul 2>&1
@@ -57,6 +61,7 @@ call:Print "Finalizing"
   move %_PS_LFS_PATH%\lfs.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_UUID_PATH%\uuid.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_CJSON_PATH%\cjson.dll %_PS_RUNTIME_PATH% >nul 2>&1
+  move %_PS_ZIP_PATH%\zip.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\SDL.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\sdl-image\image.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\sdl-ttf\ttf.dll %_PS_RUNTIME_PATH% >nul 2>&1

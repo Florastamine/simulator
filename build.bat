@@ -15,6 +15,7 @@ set _PS_LPEG_PATH=%~dp0\modules\lpeg
 set _PS_LFS_PATH=%~dp0\modules\lfs
 set _PS_ZIP_PATH=%~dp0\modules\zip
 set _PS_UUID_PATH=%~dp0\modules\uuid
+set _PS_BEEP_PATH=%~dp0\modules\beep
 set _PS_TERM_PATH=%~dp0\modules\term
 set _PS_RUNTIME_PATH=%~dp0\runtime
 
@@ -26,6 +27,9 @@ call:Print "Building LPeg"
 
 call:Print "Building LuaFileSystem"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_LFS_PATH%\lfs.dll %_PS_LFS_PATH%\*.c -llua51 >nul 2>&1
+
+call:Print "Building beep module"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_BEEP_PATH%\beep.dll %_PS_BEEP_PATH%\*.c -llua51 >nul 2>&1
 
 call:Print "Building UUID module"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_UUID_PATH%\uuid.dll %_PS_UUID_PATH%\*.c -llua51 -lole32 >nul 2>&1
@@ -67,6 +71,7 @@ call:Print "Finalizing"
   move %_PS_CJSON_PATH%\cjson.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_ZIP_PATH%\zip.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_TERM_PATH%\term.dll %_PS_RUNTIME_PATH% >nul 2>&1
+  move %_PS_BEEP_PATH%\beep.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\SDL.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\sdl-image\image.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\sdl-ttf\ttf.dll %_PS_RUNTIME_PATH% >nul 2>&1

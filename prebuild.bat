@@ -10,6 +10,7 @@ call:PreProcess
 call:Clone luajit http://github.com/LuaJIT/LuaJIT
 call:Clone moonscript http://github.com/leafo/moonscript
 call:Clone argparse http://github.com/mpeterv/argparse
+call:Clone lpeg http://github.com/Florastamine/LPeg-mirror
 call:Clone lfs http://github.com/keplerproject/luafilesystem
 call:Clone lua-cjson http://github.com/mpx/lua-cjson
 call:Clone SDL http://github.com/spurious/SDL-mirror

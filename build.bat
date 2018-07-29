@@ -11,8 +11,8 @@ if not exist .\thirdparty\luajit\Makefile (
 set _PS_LUA_PATH=%~dp0\thirdparty\luajit
 set _PS_LUASDL2_PATH=%~dp0\thirdparty\luasdl2
 set _PS_CJSON_PATH=%~dp0\thirdparty\lua-cjson
+set _PS_LFS_PATH=%~dp0\thirdparty\lfs
 set _PS_LPEG_PATH=%~dp0\modules\lpeg
-set _PS_LFS_PATH=%~dp0\modules\lfs
 set _PS_ZIP_PATH=%~dp0\modules\zip
 set _PS_UUID_PATH=%~dp0\modules\uuid
 set _PS_BEEP_PATH=%~dp0\modules\beep

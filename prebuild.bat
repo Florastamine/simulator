@@ -10,6 +10,7 @@ call:PreProcess
 call:Clone luajit http://github.com/LuaJIT/LuaJIT
 call:Clone moonscript http://github.com/leafo/moonscript
 call:Clone argparse http://github.com/mpeterv/argparse
+call:Clone lfs http://github.com/keplerproject/luafilesystem
 call:Clone lua-cjson http://github.com/mpx/lua-cjson
 call:Clone SDL http://github.com/spurious/SDL-mirror
 call:Clone luasdl2 http://github.com/Tangent128/luasdl2
@@ -29,6 +30,8 @@ call:PostProcess
 
 :PostProcess
   move %ROOT%\argparse\src\argparse.lua %ROOT%\argparse\
+  
+  move %ROOT%\lfs\src\lfs.* %ROOT%\lfs\
   
   del %ROOT%\lua-cjson\dtoa*.*
   del %ROOT%\lua-cjson\g_fmt*.*

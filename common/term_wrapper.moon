@@ -36,6 +36,7 @@ term.magenta     = 13
 term.yellow      = 14
 term.white       = 15
 term.old         = 0
+term.padding     = ""
 
 _print = (message, color = term.lightGreen, action = () ->) ->
   term.old = term.getTextColor()
@@ -45,9 +46,15 @@ _print = (message, color = term.lightGreen, action = () ->) ->
   action!
 
 return {
+  set_padding: (padding) ->
+    term.padding = padding
+  
   panic: (message) ->
     _print(string.format("[%s] %s\n", os.date(), message), term.red, os.exit)
   
-  info: (message) ->
-    _print(string.format("[%s] %s\n", os.date(), message))
+  info: (message, padding = false, ...) ->
+    if padding
+      _print(string.format("%s %s\n", string.format(pad, ...), message))
+    else
+      _print(string.format("%s\n", message))
 }

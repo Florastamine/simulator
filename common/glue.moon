@@ -51,6 +51,11 @@ merge = (dt, ...) ->
 				if rawget(dt, k) == nil then dt[k] = v
 	return dt
 
+append = (dt, ...) ->
+	for i = 1, select('#',...)
+		dt[#dt + 1] = select(i, ...)
+	return dt
+
 update = (dt, ...) ->
 	for i = 1, select('#', ...)
 		t = select(i, ...)
@@ -107,6 +112,11 @@ keys = (t, cmp) ->
 trim = (s) ->
 	s\match "^%s*(.-)%s*$"
 
+escape = (s, mode) ->
+	s = s\gsub('%%','%%%%')\gsub('%z','%%z')\gsub('([%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
+	if mode == '*i' then s = s\gsub('[%a]', (c) -> '[%s%s]'\format(c\lower!, c\upper!))
+	s
+
 binsearch = (v, t, cmp = (a, b) -> a < b) ->
   n = #t
   return nil if n == 0
@@ -146,20 +156,35 @@ malloc = (ctype, size) ->
 	return data
 
 return {
+  math: {
+    round: round,
+    snap: round,
+    clamp: clamp,
+    floor: floor
+  },
+  
+  string: {
+    tohex: tohex,
+    fromhex: fromhex,
+    trim: trim,
+    escape: escape
+  },
+  
+  table: {
+    merge: merge,
+    append: append,
+    extend: extend,
+    keys: keys,
+    index: index,
+    indexof: indexof,
+    update: update,
+    count: count
+  },
+  
+  algorithm: {
+    binsearch: binsearch,
+  }
+  
   malloc: malloc,
   free: free,
-  round: round,
-  snap: round,
-  clamp: clamp,
-  binsearch: binsearch,
-  merge: merge,
-  extend: extend,
-  keys: keys,
-  index: index,
-  indexof: indexof,
-  update: update,
-  count: count,
-  tohex: tohex,
-  fromhex: fromhex,
-  trim: trim
 }

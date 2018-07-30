@@ -54,7 +54,7 @@ return {
   
   info: (message, padding = false, ...) ->
     if padding
-      _print(string.format("%s %s\n", string.format(pad, ...), message))
+      _print(string.format("%s %s\n", string.format(term.padding, ...), message))
     else
       _print(string.format("%s\n", message))
 }

@@ -20,6 +20,7 @@
 -- the original version are noted below:
 -- * table.count() no longer takes into account the upper limit, and the argument was 
 --   left out for compatibility's sake.
+-- * string.trim() got the original trim2() implementation from the Lua wiki.
 
 ffi = require "ffi"
 
@@ -41,6 +42,14 @@ index = (t) ->
 	new = {}
 	for k, v in pairs t do new[v] = k
 	return new
+
+merge = (dt, ...) ->
+	for i = 1, select('#',...)
+		t = select(i, ...)
+		if t != nil
+			for k,v in pairs t
+				if rawget(dt, k) == nil then dt[k] = v
+	return dt
 
 update = (dt, ...) ->
 	for i = 1, select('#', ...)
@@ -85,6 +94,36 @@ fromhex = (s) ->
 
 	s\gsub('..', (cc) -> string.char(tonumber(cc, 16)))
 
+keys = (t, cmp) ->
+	dt = {}
+	for k in pairs t
+		dt[#dt+1]=k
+	if cmp
+		table.sort(dt)
+	elseif cmp
+		table.sort(dt, cmp)
+	return dt
+
+trim = (s) ->
+	s\match "^%s*(.-)%s*$"
+
+binsearch = (v, t, cmp = (a, b) -> a < b) ->
+  n = #t
+  return nil if n == 0
+  if n == 1
+    return not cmp(t[1], v) and 1 or nil
+  
+  lo, hi = 1, n
+  while lo < hi
+    mid = math.floor(lo + (hi - lo) / 2)
+    if cmp t[mid], v
+      lo = mid + 1
+      if lo == n and cmp t[lo], v
+        return nil
+    else
+      hi = mid
+  return lo
+
 ffi.cdef[[
 	void* malloc (size_t size);
 	void  free   (void*);
@@ -112,11 +151,15 @@ return {
   round: round,
   snap: round,
   clamp: clamp,
+  binsearch: binsearch,
+  merge: merge,
   extend: extend,
+  keys: keys,
   index: index,
   indexof: indexof,
   update: update,
   count: count,
   tohex: tohex,
-  fromhex: fromhex
+  fromhex: fromhex,
+  trim: trim
 }

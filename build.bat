@@ -1,3 +1,20 @@
+rem ================================================================================
+rem Copyright (C) 2018, Florastamine
+rem 
+rem This program is free software: you can redistribute it and/or modify
+rem it under the terms of the GNU General Public License as published by
+rem the Free Software Foundation, either version 3 of the License, or
+rem (at your option) any later version.
+rem 
+rem This program is distributed in the hope that it will be useful,
+rem but WITHOUT ANY WARRANTY; without even the implied warranty of
+rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+rem GNU General Public License for more details.
+rem 
+rem You should have received a copy of the GNU General Public License
+rem along with this program.  If not, see <https://www.gnu.org/licenses/>.
+rem ================================================================================
+
 @echo off
 
 call vars.bat
@@ -61,8 +78,6 @@ call:Print "Building SDL2"
   %_MAKE% --directory=%_PS_LUASDL2_PATH%\build -j%_MAKE_PARALLEL%
 
 call:Print "Finalizing"
-  rd /s /q %_PS_RUNTIME_PATH% >nul 2>&1
-  mkdir %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUA_PATH%\src\luajit.exe %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUA_PATH%\src\lua51.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LPEG_PATH%\lpeg.dll %_PS_RUNTIME_PATH% >nul 2>&1
@@ -78,8 +93,17 @@ call:Print "Finalizing"
   copy %_PS_LUASDL2_PATH%\..\SDL_binaries\*.dll %_PS_RUNTIME_PATH% >nul 2>&1
   echo .\luajit.exe ..\control.lua ..\vm\vm.moon >> %_PS_RUNTIME_PATH%\launch.bat
 
-call:Print "Cleaning"
-  del /f /s /q  %_PS_LUA_PATH%\*.o %_PS_LUA_PATH%\*.a %_PS_LUA_PATH%\*.dll %_PS_LUA_PATH%\*.exe >nul 2>&1
+call:Print "Compiling scripts"
+  set MC=runtime\luajit .\tools\mc.lua
+  for %%p in (color combobox cursor icon sync toolbar types) do (
+    echo Compiling %%p.moon
+    %MC% common\winapi\%%p.moon
+  )
+  
+  for %%p in (glue) do (
+    echo Compiling %%p.moon
+    %MC% common\%%p.moon
+  )
 
 :Print
 title %~1, please wait...

@@ -114,7 +114,7 @@ trim = (s) ->
 
 escape = (s, mode) ->
 	s = s\gsub('%%','%%%%')\gsub('%z','%%z')\gsub('([%^%$%(%)%.%[%]%*%+%-%?])', '%%%1')
-	if mode == '*i' then s = s\gsub('[%a]', (c) -> '[%s%s]'\format(c\lower!, c\upper!))
+	if mode == '*i' s = s\gsub('[%a]', (c) -> '[%s%s]'\format(c\lower!, c\upper!))
 	s
 
 binsearch = (v, t, cmp = (a, b) -> a < b) ->
@@ -155,6 +155,57 @@ malloc = (ctype, size) ->
 	ffi.gc(data, free)
 	return data
 
+autoload = (t, k, v) ->
+	mt = getmetatable(t) or {}
+	if not mt.__autoload
+		if mt.__index
+			error '__index already assigned for something else'
+		submodules = {}
+		mt.__autoload = submodules
+		mt.__index = (t, k) ->
+			if submodules[k]
+				if type(submodules[k]) == 'string'
+					require(submodules[k]) --module
+				else
+					submodules[k](k) --custom loader
+				submodules[k] = nil --prevent loading twice
+			return rawget(t, k)
+		setmetatable(t, mt)
+	if type(k) == 'table'
+		update(mt.__autoload, k) --multiple key -> module associations.
+	else
+		mt.__autoload[k] = v --single key -> module association.
+	return t
+
+_assert = (v, err = 'assertion failed!', ...) ->
+	return v if v
+	if select('#', ...) > 0
+		err = string.format(err, ...)
+	error(err, 2)
+
+fpcall = (f, ...) ->
+	fint, errt = {}, {}
+	err = (e) ->
+		for i = #errt, 1, -1 do errt[i](e)
+		for i = #fint, 1, -1 do fint[i]()
+		tostring(e) .. '\n' .. debug.traceback()
+  
+	pass = (ok, ...) ->
+		if ok
+			for i = #fint, 1, -1 do fint[i]()
+		return ok, ...
+	return pass(xpcall(f, err, ((f) -> fint[#fint + 1] = f), ((f) -> errt[#errt + 1] = f), ...))
+
+assert_fpcall = (ok, ...) ->
+	if not ok then error(..., 2)
+	return ...
+
+fcall = (...) ->
+	return assert_fpcall fpcall(...)
+
+pcall = (f, ...) ->
+	return xpcall(f, ((e) -> tostring(e) .. '\n' .. debug.traceback()), ...)
+
 return {
   math: {
     round: round,
@@ -187,4 +238,8 @@ return {
   
   malloc: malloc,
   free: free,
+  autoload: autoload,
+  assert: _assert,
+  fcall: fcall,
+  pcall: pcall
 }

@@ -363,5 +363,20 @@ testFFI = () ->
     glue.free(v.data)
     io.stdout\write "------------------------------------------\n"
 
+testAutoload = () ->
+  term.info "Testing glue.autoload()"
+  
+  M, x, y, z, t = {}, 0, 0, 0, 0
+  glue.autoload(M, 'x', () -> x += 1)
+  glue.autoload(M, 'y', () -> y += 1)
+  glue.autoload(M, {'z': () -> z += 1, 'p': () -> t += 1})
+  M.x, M.x, M.y, M.y, M.z, M.z, M.p, M.p
+  
+  if eq(x, 1, true) and eq(y, 1, true) and eq(z, 1, true) and eq(t, 1, true)
+    term.info "success" 
+  else
+    term.panic "failed"
+
 testAPI!
 testFFI!
+testAutoload!

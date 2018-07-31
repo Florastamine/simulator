@@ -86,20 +86,3 @@ ffi.metatype('GUID', {
 		is_nil = UuidIsNil,
 	},
 })
-
-if not ... then
-	print(UuidCreate())
-	print(UuidCreateSequential())
-	print(UuidCreate():hash())
-
-	assert(#tostring(UuidCreate()) == 36)
-	assert(#tostring(UuidCreateSequential()) == 36)
-	assert(tostring(UuidCreateNil()) == '00000000-0000-0000-0000-000000000000')
-
-	assert(UuidCreate():is_nil() == false)
-	assert(UuidCreateSequential():is_nil() == false)
-	assert(UuidCreateNil():is_nil() == true)
-	assert(UuidCreateSequential():compare(UuidCreateSequential()) == -1)
-	assert(UuidCreate() ~= UuidCreate())
-end
-

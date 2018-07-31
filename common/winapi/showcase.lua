@@ -16,9 +16,3 @@ function ShowcaseImageList()
 	return ImageList(ffi.cast('HIMAGELIST',
 				SHGetFileInfo('c:\\', 0, 'SHGFI_ICON | SHGFI_SYSICONINDEX | SHGFI_SMALLICON')))
 end
-
-
-if not ... then
-local window = ShowcaseWindow()
-MessageLoop()
-end

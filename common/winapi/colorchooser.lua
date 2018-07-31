@@ -51,11 +51,3 @@ function ChooseColor(cc, cust) --reusing the cc preserves the custom colors
 	checkcomdlg(comdlg.ChooseColorW(ffi.cast('LPCHOOSECOLORW', cc)))
 	return cc, cust
 end
-
-
-if not ... then
-require'winapi.showcase'
-local window = ShowcaseWindow()
-local cc, cust = CHOOSECOLOR{}
-cc = ChooseColor(cc)
-end

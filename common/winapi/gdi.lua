@@ -384,11 +384,3 @@ end
 function SetWindowRgn(hwnd, rgn, redraw)
 	checknz(C.SetWindowRgn(hwnd, rgn, redraw))
 end
-
---showcase
-
-if not ... then
-	print(GetStockObject(WHITE_BRUSH))
-	print(GetStockObject(DEFAULT_GUI_FONT))
-end
-

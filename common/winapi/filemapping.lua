@@ -58,16 +58,3 @@ end
 function FlushViewOfFile(baseaddr, sz)
 	return retnz(C.FlushViewOfFile(baseaddr, sz))
 end
-
-if not ... then
-	for i=1,100 do
-		local sz = 100*1024^2
-		local fm = assert(CreateFileMapping(nil, nil, 'PAGE_READWRITE', sz, 'big_shm'))
-		print(fm)
-		local p = MapViewOfFile(fm, 'FILE_MAP_WRITE', 0, sz)
-		print(p)
-		assert(FlushViewOfFile(p, sz))
-		UnmapViewOfFile(p)
-		assert(CloseHandle(fm))
-	end
-end

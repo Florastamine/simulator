@@ -81,33 +81,3 @@ function VObject:__vproperties() --returns iter() -> property, {get = class, set
 	end
 	return pairs(t)
 end
-
-
---showcase
-
-if not ... then
-local STATUS = 'OK'
-local c = class(VObject)
-function c:__init(...) print('init:', ...) end
-function c:get_status() return STATUS end
-function c:set_status(s) STATUS = s end
-function c:set_text(s) end
-local o = c('hi', 'there')
-assert(o.status == 'OK') --virtual property get
-o.status = 'EVEN BETTER' --virtual property set
-assert(o.__state == nil) --no active properties yet
-o.text = 'hello' --active property set
-assert(o.text == 'hello') --active property get
-assert(o.__state.text == o.text) --confirm the active property
-assert(o.unknown == nil) --non-existent property
-assert(o[1234] == nil) --non-existent property
-assert(o[false] == nil) --non-existent property
---isinstance
-assert(isinstance(o, VObject) == true)
-assert(isinstance(o, c) == true)
-assert(isinstance(o, o) == false)
---introspection
-for k,v in o:__vproperties() do _G.print(k, v.get, v.set) end
-
-end
-

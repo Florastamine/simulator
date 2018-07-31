@@ -56,11 +56,3 @@ end
 function LoadLibrary(filename)
     return checkh(C.LoadLibraryW(wcs(filename)))
 end
-
-if not ... then
-	local file = GetModuleFilename()
-	print(file)
-	print(GetModuleHandle())
-	print(GetModuleHandleEx(file))
-	print(LoadLibrary'shell32')
-end

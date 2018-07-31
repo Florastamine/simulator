@@ -96,11 +96,3 @@ end
 function FlushFileBuffers(hfile)
 	return retnz(C.FlushFileBuffers(hfile))
 end
-
-if not ... then
-	local tmpname = '_CreateFileTest.tmp'
-	local f = assert(CreateFile(tmpname, 'GENERIC_WRITE', 0, nil,
-		'OPEN_ALWAYS', 'FILE_ATTRIBUTE_NORMAL'))
-	assert(CloseHandle(f))
-	os.remove(tmpname)
-end

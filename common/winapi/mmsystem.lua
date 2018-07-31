@@ -35,13 +35,3 @@ end
 
 timeBeginPeriod = winmm.timeBeginPeriod
 timeEndPeriod = winmm.timeEndPeriod --called automatically when the process ends.
-
-
---showcase
-
-if not ... then
-	local t = timeGetDevCaps()
-	print(t.wPeriodMin, t.wPeriodMax)
-	timeBeginPeriod(t.wPeriodMin)
-	timeEndPeriod(t.wPeriodMin)
-end

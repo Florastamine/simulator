@@ -76,18 +76,3 @@ function WM.WM_DPICHANGED(wParam, lParam)
 	local r = ffi.cast('RECT*', lParam)
 	return x, y, r.x1, r.y1, r.x2, r.y2
 end
-
-if not ... then
-	local win8_1 = true --enable this if on Win8.1+
-	if win8_1 then
-		local awareness = PROCESS_PER_MONITOR_DPI_AWARE
-		SetProcessDPIAwareness(awareness)
-		assert(GetProcessDPIAwareness() == awareness)
-
-		local mon = assert(MonitorFromPoint())
-		print('DPI', GetDPIForMonitor(mon, MDT_EFFECTIVE_DPI))
-	else
-		SetProcessDPIAware()
-		assert(IsProcessDPIAware())
-	end
-end

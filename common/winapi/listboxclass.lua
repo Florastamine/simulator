@@ -109,14 +109,3 @@ end
 function ListBox:set_hextent(width)
 	ListBox_SetHorizontalExtent(self.hwnd, width)
 end
-
-
-if not ... then
-	require'winapi.showcase'
-	local window = ShowcaseWindow{w=300,h=200}
-	local lb = ListBox{parent = window, x = 10, y = 10, hextent = 120}
-	for i = 1,100 do
-		lb.items:add('xxxxxxxxxx test '..i)
-	end
-	MessageLoop()
-end

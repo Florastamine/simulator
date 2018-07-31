@@ -35,14 +35,3 @@ function QueryUnbiasedInterruptTime(time) --Vista+
 	checknz(C.QueryUnbiasedInterruptTime(time))
 	return time[0]
 end
-
-if not ... then
-	print('GetTickCount', GetTickCount())
-	--print('GetTickCount64', GetTickCount64())
-	print('QueryPerformanceCounter', QueryPerformanceCounter().QuadPart,
-				QueryPerformanceCounter().QuadPart - tonumber(QueryPerformanceCounter().QuadPart))
-	print('QueryPerformanceFrequency', QueryPerformanceFrequency().QuadPart)
-	--print('QueryUnbiasedInterruptTime', QueryUnbiasedInterruptTime())
-
-end
-

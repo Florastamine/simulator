@@ -92,10 +92,3 @@ ODT_LISTBOX     = 2
 ODT_COMBOBOX    = 3
 ODT_BUTTON      = 4
 ODT_STATIC      = 5
-
---showcase
-
-if not ... then
-InitCommonControlsEx(0xFFFF) --init all
-end
-

@@ -141,9 +141,3 @@ end
 function TerminateProcess(hproc, exitcode)
 	return retnz(C.TerminateProcess(hproc, exitcode or 0))
 end
-
-if not ... then
-	local si = GetStartupInfo()
-	print(si.wShowWindow)
-end
-

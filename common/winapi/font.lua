@@ -139,12 +139,3 @@ LOGFONT = struct{
 function CreateFont(lf)
 	return own(checkh(C.CreateFontIndirectW(LOGFONT(lf))), DeleteObject)
 end
-
---showcase
-
-if not ... then
-	local logfont = LOGFONT{facename = 'Arial'}
-	assert(logfont.facename == 'Arial')
-	print('CreateFont:', CreateFont(logfont))
-end
-

@@ -275,26 +275,3 @@ function ReportListView:__before_create(info, args)
 	ReportListView.__index.__before_create(self, info, args)
 	args.style = bit.bor(args.style, LVS_REPORT)
 end
-
-
---showcase
-
-if not ... then
-	require'winapi.showcase'
-	local window = ShowcaseWindow{w=300, h=200}
-	local lv = ReportListView{parent = window, x = 10, y = 10, w = 200, h = 100}
-	lv.columns:add'name'
-	lv.columns:add'address'
-	lv.items:add'you won\'t see me'
-	lv.items:clear()
-	lv.items:add'Louis Armstrong'
-	lv.items:add'Django Reinhardt'
-	lv.items:set_subitem(lv.items.count,1,'Beyond The Sea')
-	lv.items:set_subitem(1,1,'Basin Street')
-	--lv.items:add(3, {text = LPSTR_TEXTCALLBACKW})
-	--lv.items:add(4, {text = LPSTR_TEXTCALLBACKW})
-	--function lv:get_item_data(item) item.text = 'n/a'end
-	lv.items:remove(3)
-	MessageLoop()
-end
-

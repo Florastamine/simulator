@@ -50,29 +50,4 @@ function BitmapPanel:on_bitmap_create(bitmap) end
 function BitmapPanel:on_bitmap_free(bitmap) end
 function BitmapPanel:on_bitmap_paint(bitmap) end
 
---showcase
-
-if not ... then
-	require'winapi.showcase'
-	local win = ShowcaseWindow()
-	local bp = BitmapPanel{
-		x = 20,
-		y = 20,
-		w = win.client_w - 40,
-		h = win.client_h - 40,
-		parent = win,
-		anchors = {left = true, top = true, right = true, bottom = true},
-	}
-	function bp:on_bitmap_paint(bmp)
-		local pixels = ffi.cast('int32_t*', bmp.data)
-		for y = 0, bmp.h - 1 do
-			for x = 0, bmp.w - 1 do
-				pixels[y * bmp.w + x] = y * 2^8 + x * 2^16
-			end
-		end
-	end
-	win:invalidate()
-	MessageLoop()
-end
-
 return BitmapPanel

@@ -18,14 +18,14 @@ assert(ffi.abi'win', 'platform not Windows')
 glue = require'glue'
 
 assert       = glue.assert
-extend       = glue.extend
+extend       = glue.table.extend
 fcall        = glue.fcall
-index        = glue.index
-merge        = glue.merge
-pass         = glue.pass
+index        = glue.table.index
+merge        = glue.table.merge
+pass         = function () end
 pcall        = glue.pcall
-trim         = glue.trim
-update       = glue.update
+trim         = glue.string.trim
+update       = glue.table.update
 
 --error reporting -------------------------------------------------------------
 

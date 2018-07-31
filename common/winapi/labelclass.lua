@@ -46,21 +46,3 @@ function Label:__before_create(info, args)
 	args.text = info.text
 	args.class = WC_STATIC
 end
-
---showcase
-
-if not ... then
-	require'winapi.showcase'
-	local window = ShowcaseWindow{w=300,h=200}
-	local s1 = Label{
-		parent = window,
-		x = 10, y = 10, w = 100, h = 60,
-		text = 'Hi there my sweet lemon drops!',
-		align = 'right',
-	}
-	function s1:on_click()
-		print'clicked'
-	end
-	MessageLoop()
-end
-

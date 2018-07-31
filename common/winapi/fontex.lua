@@ -38,9 +38,3 @@ function CreateFontEx(lfex)
 	lfex = ENUMLOGFONTEXDVW(lfex)
 	return own(checkh(C.CreateFontIndirectExW(lfex)), DeleteObject)
 end
-
-if not ... then
-local font = print(CreateFontEx{
-
-})
-end

@@ -26,7 +26,3 @@ function CreateMutex(sec, initial_owner, name)
 	if err == 0 then return h end
 	return h, errors[err] or err
 end
-
-if not ... then
-	print(CreateMutex(nil, false, 'my mutex'))
-end

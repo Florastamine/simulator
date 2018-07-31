@@ -42,24 +42,3 @@ end
 function RadioButton:get_checked()
 	return button_state_names[bit.band(Button_GetCheck(self.hwnd), 3)]
 end
-
---showcase
-
-if not ... then
-require'winapi.showcase'
-local window = ShowcaseWindow{w=300,h=200}
-local cb1 = RadioButton{parent = window, w = 200, text = 'I am The Ocean', checked = true,
-							box_align = 'right', align = 'left', halign = 'center', flat = true,
-							image_list = {image_list = ShowcaseImageList()}}
-function cb1:on_click() print'b1 clicked' end
-
-local cb2 = RadioButton{parent = window, y = 30, pushlike = true}
-
-local cb3 = RadioButton{parent = window, y = 60, w = 150, h = 50,
-							word_wrap = true, valign = 'top', double_clicks = true,
-							text = "I'm a radioobutton and I'm ok. I sleep all night and I work all day."}
-function cb3:on_double_click() print 'b3 dbl-clicked' end
-
-MessageLoop()
-end
-

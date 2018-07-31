@@ -76,27 +76,3 @@ function Object:__properties()
 	end
 	return pairs(t)
 end
-
-
---shwocase
-
-if not ... then
---subclassing
-local c = class(Object)
-local init
-function c:__init(...) init = true end --dummy constructor
-local o = c('hi', 'there')
-assert(init)
-assert(o.unknown == nil) --non-existent property
---isinstance
-assert(isinstance(o, c) == true)
-assert(isinstance(o, Object) == true)
-assert(isinstance(o, o) == false)
---introspection
-for k,v,source in o:__allpairs() do _G.print(k,source) end
-o.own_property = true
-for k,v in o:__properties() do _G.print(k,v) end
-for c in o:__supers() do _G.print(c, o:__super(), o:__super():__super()) end
-
-end
-

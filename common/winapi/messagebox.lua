@@ -76,7 +76,3 @@ function GetDialogBaseUnits()
 	local long = C.GetDialogBaseUnits()
 	return bit.band(long, 0xFFFF), bit.rshift(long, 16)
 end
-
-if not ... then
-MessageBox('Noisy whippersnappers', 'Alert', 'MB_ICONEXCLAMATION | MB_CANCELTRYCONTINUE')
-end

@@ -128,39 +128,3 @@ function Tooltip:set_text(text)
 	ti.text = text
 	SNDMSG(self.hwnd, TTM_UPDATETIPTEXT, 0, ffi.cast('void*', ti))
 end
-
---showcase -------------------------------------------------------------------
-
-if not ... then
-require'winapi.showcase'
-local window = ShowcaseWindow{w=300,h=200}
-local t1 = Tooltip{parent = window} --, text='xxxx'}--, visible = false}--, text = 'Hellooo!'}
-
-local n = 10
-function t1:on_get_display_info(nmt)
-	print'on_get_display_info'
-	n = n - 1
-	nmt.text = string.format('H%s!!!!', ('o'):rep(n))
-	nmt.uFlags = 0
-end
-
-function t1:on_show()
-	print'on_show'
-end
-
-function t1:on_activate()
-	print'on_activate'
-end
-
-function window:on_mouse_move(mx, my)
-	t1.rect = t1.parent.client_rect
-	n = n + .001
-	--t1.text = string.format('H%s!!!!', ('o'):rep(math.floor(n)))
-	t1.active = mx < window.client_w / 2
-end
-
-t1.active = false
---t1.text = 'xx'
-
-MessageLoop()
-end

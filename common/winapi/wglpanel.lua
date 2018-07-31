@@ -2,8 +2,6 @@
 --oo/controls/wglpanel: opengl-enabled panel
 --Written by Cosmin Apreutesei. Public Domain.
 
-if not ... then require'winapi.wglpanel_demo'; return end
-
 setfenv(1, require'winapi')
 require'winapi.panelclass'
 require'winapi.gl11'

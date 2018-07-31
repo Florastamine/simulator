@@ -110,33 +110,3 @@ end
 function Toolbar:load_images(which)
 	Toolbar_LoadImages(self.hwnd, which)
 end
-
---showcase
-
-if not ... then
-	require'winapi.showcase'
-	local win = ShowcaseWindow()
-
-	local tb = Toolbar{
-		parent = win,
-		image_list = ImageList{w = 16, h = 16, masked = true, colors = '32bit'},
-		items = {
-			--NOTE: using `iBitmap` instead of `i` because `i` counts from 1
-			{iBitmap = STD_FILENEW,  text = 'New'},
-			{iBitmap = STD_FILEOPEN, text = 'Open', style = {toggle = true}},
-			{iBitmap = STD_FILESAVE, text = 'Save', style = {type = 'dropdown'}},
-		},
-		anchors = {left = true, right = true},
-	}
-	tb:load_images(IDB_STD_SMALL_COLOR)
-
-	function tb:on_dropdown(info)
-		print('dropdown', info.button.iBitmap, info.rect.x, info.rect.y)
-	end
-
-	--TODO: this gives "The handle is invalid."
-	--local item = tb.items:get(3)
-	--print(require'pp'.format(item.state))
-
-	MessageLoop()
-end

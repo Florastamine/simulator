@@ -79,14 +79,3 @@ function EnumDisplayMonitors(hdc, cliprect)
 	checknz(ret)
 	return t
 end
-
-
---showcase
-
-if not ... then
-	for i,monitor in ipairs(EnumDisplayMonitors()) do
-		local info = GetMonitorInfo(monitor)
-		print(i, info.monitor_rect, info.work_rect, info.device)
-	end
-end
-

@@ -66,7 +66,3 @@ function GetVolumeInformation(path)
 		filesystem_name = mbs(fsname_buf),
 	}
 end
-
-if not ... then
-	require'pp'(GetVolumeInformation'C:\\')
-end

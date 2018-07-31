@@ -85,18 +85,3 @@ end
 
 function TabControl:set_selected_index(i) TabCtrl_SetCurSel(self.hwnd, i) end
 function TabControl:get_selected_index() return TabCtrl_GetCurSel(self.hwnd) end
-
---showcase
-if not ... then
-	require'winapi.showcase'
-	local window = ShowcaseWindow{w=300,h=200}
-
-	t1 = TabControl{parent = window}
-	t1.image_list = ShowcaseImageList()
-	t1.items:add{text = 'tab#1', image = 2}
-	t1.items:add{text = 'tab#2', image = 3}
-	t1.selected_index = 2
-	assert(t1.selected_index == 2)
-
-	MessageLoop()
-end

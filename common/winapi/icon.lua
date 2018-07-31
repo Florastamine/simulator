@@ -52,9 +52,3 @@ end
 --WM_SETICON flags
 ICON_BIG = 1
 ICON_SMALL = 0
-
-if not ... then
-print(LoadIconFromInstance(IDI_APPLICATION))
-print(LoadIconFromInstance(IDI_INFORMATION))
-end
-

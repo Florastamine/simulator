@@ -104,19 +104,3 @@ function RtlGetVersion(info)
 	checkz(ntdll.RtlGetVersion(info))
 	return info
 end
-
-if not ... then
-	local sysinfo = GetSystemInfo()
-
-	local function print_verinfo(how)
-		local verinfo = _M[how]()
-		print(how, 'Windows ' ..
-				verinfo.dwMajorVersion .. '.' .. verinfo.dwMinorVersion .. '.' .. verinfo.dwBuildNumber .. ' ' ..
-				'SP ' .. verinfo.wServicePackMajor .. '.' .. verinfo.wServicePackMinor .. ' (' ..
-				verinfo.ServicePackString .. ')')
-	end
-
-	print_verinfo'GetVersionEx'
-	print_verinfo'RtlGetVersion'
-end
-

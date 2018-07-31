@@ -64,12 +64,3 @@ function EnumDisplayDevices(devname_or_index, dd, EDD)
 	local ret = C.EnumDisplayDevicesW(devname, devindex, dd, flags(EDD))
 	return ret ~= 0 and dd or nil
 end
-
-
---showcase
-
-if not ... then
-	for dd in EnumDisplayDevices() do
-		print(dd.device_name, dd.device_string, dd.state_flags, dd.device_id, dd.device_key)
-	end
-end

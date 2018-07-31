@@ -130,33 +130,3 @@ end
 function ImageList:draw(i, dc, x, y, IDL)
 	ImageList_Draw(self.himl, i, dc, x, y, IDL)
 end
-
-
---showcase
-
-if not ... then
-require'winapi.showcase'
-require'winapi.icon'
-require'winapi.resource'
-local window = ShowcaseWindow{w=300,h=200}
-local m = ImageList{w=32,h=32,colors='32bit'}
---m.bk_color = 234234
-m:add{icon = LoadIconFromInstance(IDI_WARNING)}
-m:add{icon = LoadIconFromInstance(IDI_INFORMATION)}
-m:add(2, {icon = LoadIconFromInstance(IDI_ERROR)})
-m:set(3, {icon = LoadIconFromInstance(IDI_ERROR)})
-m.count = m.count + 1
-print(m.count)
-print(m.size)
-function window:WM_PAINT()
-	local p = ffi.new'PAINTSTRUCT'
-	local hdc = C.BeginPaint(window.hwnd, p)
-	for i=1,m.count do
-		m:draw(i, hdc, 50+i*34, 50, ILD_NORMAL)
-	end
-	C.EndPaint(window.hwnd, p)
-end
-window:invalidate()
-MessageLoop()
-m:destroy()
-end

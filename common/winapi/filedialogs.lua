@@ -169,26 +169,3 @@ function GetOpenFileName(info)
 	info = OPENFILENAME(info)
 	return checkcomdlg(comdlg.GetOpenFileNameW(info)), info
 end
-
-
---showcase
-if not ... then
-	local ok, info = GetSaveFileName{
-		title = 'Save this thing',
-		filter = {'All Files','*.*','Text Files','*.txt'},
-		filter_index = 1,
-		flags = 'OFN_SHOWHELP',
-	}
-	print(ok, info.filepath, info.filename, info.filter_index, info.custom_filter)
-
-	local ok, info = GetOpenFileName{
-		title = 'Open\'em up!',
-		filter = {'All Files','*.*','Text Files','*.txt'},
-		filter_index = 1,
-		flags = 'OFN_ALLOWMULTISELECT|OFN_EXPLORER',
-	}
-
-	print(ok, info.filepath, info.filename, info.filter_index, info.custom_filter)
-	require'pp'(GetOpenFileNamePaths(info))
-end
-

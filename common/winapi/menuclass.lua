@@ -210,28 +210,3 @@ function MenuBar:__set_window(window) --used by Window:set_menu()
 	self.hwnd = window and window.hwnd
 	self:__redraw()
 end
-
---showcase
-
-if not ... then
-	require'winapi.showcase'
-	local win = ShowcaseWindow()
-
-	win.menu = MenuBar()
-
-	win.menu.items:add{
-		text = '&File',
-		submenu = Menu{
-			items = {
-				{text = '&Close', on_click = function() win:close() end},
-			},
-		},
-	}
-
-	local helpmenu = Menu()
-	helpmenu.items:add{text = '&About', on_click = function() end}
-
-	win.menu.items:add{text = '&Help', submenu = helpmenu}
-
-	MessageLoop()
-end

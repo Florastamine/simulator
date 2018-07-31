@@ -1,15 +1,32 @@
+-- ================================================================================
+-- Copyright (C) 2018, Florastamine
+-- 
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-- ================================================================================
 
---proc/controls/toolbar: standard toolbar control
---Written by Cosmin Apreutesei. Public Domain.
+-- Note: Don't define time_t because it's 64bit in windows but 32bit in mingw: use explicit types!
+-- Note: SIZE has w and h unioned to cx and cy and these are the ones used throughout.
+-- Note: RECT has x1, y1, x2, y2 unioned to left, right, top, bottom and these are the ones used throughout.
 
-setfenv(1, require'winapi')
-require'winapi.window'
-require'winapi.comctl'
+export *
 
---creation
+setfenv 1, require "winapi"
+require "winapi.window"
+require "winapi.comctl"
 
+-- Creation
 TOOLBARCLASSNAME       = 'ToolbarWindow32'
-
 TBSTYLE_TOOLTIPS         = 0x0100
 TBSTYLE_WRAPABLE         = 0x0200
 TBSTYLE_ALTDRAG          = 0x0400
@@ -34,8 +51,7 @@ TBSTYLE_EX_HIDECLIPPEDBUTTONS        = 0x00000010 -- don't show partially obscur
 TBSTYLE_EX_DOUBLEBUFFER              = 0x00000080 -- Double Buffer the toolbar
 TBSTYLE_EX_DRAWDDARROWS              = 0x00000001
 
---commands
-
+-- Commands
 TB_SETIMAGELIST          = (WM_USER + 48)
 TB_GETIMAGELIST          = (WM_USER + 49)
 TB_LOADIMAGES            = (WM_USER + 50)
@@ -46,13 +62,11 @@ TB_INSERTBUTTONW         = (WM_USER + 67)
 TB_DELETEBUTTON          = (WM_USER + 22)
 TB_BUTTONCOUNT           = (WM_USER + 24)
 
-function Toolbar_SetImageList(tb, iml)
-	return ptr(ffi.cast('HIMAGELIST', SNDMSG(tb, TB_SETIMAGELIST, 0, iml)))
-end
+Toolbar_SetImageList = (tb, iml) ->
+	ptr ffi.cast 'HIMAGELIST', SNDMSG(tb, TB_SETIMAGELIST, 0, iml)
 
-function Toolbar_GetImageList(tb)
-	return ptr(ffi.cast('HIMAGELIST', SNDMSG(tb, TB_GETIMAGELIST)))
-end
+Toolbar_GetImageList = (tb) ->
+	ptr ffi.cast 'HIMAGELIST', SNDMSG(tb, TB_GETIMAGELIST)
 
 IDB_STD_SMALL_COLOR      = 0
 IDB_STD_LARGE_COLOR      = 1
@@ -67,9 +81,8 @@ IDB_HIST_PRESSED         = 15
 
 HINST_COMMCTRL           = -1
 
-function Toolbar_LoadImages(tb, IDB)
-	return checkpoz(SNDMSG(tb, TB_LOADIMAGES, IDB, ffi.cast('HINSTANCE', HINST_COMMCTRL)))
-end
+Toolbar_LoadImages = (tb, IDB) ->
+	checkpoz SNDMSG(tb, TB_LOADIMAGES, IDB, ffi.cast('HINSTANCE', HINST_COMMCTRL))
 
 --index values for IDB_HIST_LARGE_COLOR and IDB_HIST_SMALL_COLOR
 HIST_BACK                = 0
@@ -117,7 +130,7 @@ TBSTATE_WRAP             = 0x20
 TBSTATE_ELLIPSES         = 0x40
 TBSTATE_MARKED           = 0x80
 
-ffi.cdef(string.format([[
+ffi.cdef string.format([[
 typedef struct _TBBUTTON {
     int iBitmap;
     int idCommand;
@@ -131,68 +144,54 @@ typedef struct _TBBUTTON {
 	};
 } TBBUTTON, *PTBBUTTON, *LPTBBUTTON;
 typedef const TBBUTTON *LPCTBBUTTON;
-]], ffi.abi('64bit') and 6 or 2))
+]], ffi.abi('64bit') and 6 or 2)
 
-local style_bitmask = bitmask{
-	auto_width = BTNS_AUTOSIZE,
-	toggle = BTNS_CHECK,
-	group = BTNS_GROUP, --use with `pushed`
-	type = {
-		button = 0,
-		dropdown = BTNS_WHOLEDROPDOWN,
-		button_with_dropdown = BTNS_DROPDOWN,
-		separator = BTNS_SEP,
+style_bitmask = bitmask {
+	auto_width: BTNS_AUTOSIZE,
+	toggle: BTNS_CHECK,
+	group: BTNS_GROUP, --use with `pushed`
+	type: {
+		button: 0,
+		dropdown: BTNS_WHOLEDROPDOWN,
+		button_with_dropdown: BTNS_DROPDOWN,
+		separator: BTNS_SEP,
 	},
-	accelerator_prefix = negate(BTNS_NOPREFIX),
-	show_text = BTNS_SHOWTEXT, --use with `list` and `mixed_buttons`
+	accelerator_prefix: negate BTNS_NOPREFIX,
+	show_text: BTNS_SHOWTEXT, --use with `list` and `mixed_buttons`
 }
 
-local function set_style(t, cdata)
-	return style_bitmask:set(cdata.fsStyle, t)
-end
-
-local function get_style(fsStyle)
-	return style_bitmask:get(fsStyle)
-end
-
 TBBUTTON = struct{
-	ctype = 'TBBUTTON',
-	fields = sfields{
+	ctype: 'TBBUTTON',
+	fields: sfields{
 		'i', 'iBitmap', countfrom0, countfrom1,
 		'command', 'idCommand', pass, pass,
 		'__state', 'fsState', flags, pass, --TBSTATE_*
-		'style', 'fsStyle', set_style, get_style, --TBSTYLE_*
+		'style', 'fsStyle', ((t, cdata) -> style_bitmask:set(cdata.fsStyle, t)), ((fsStyle) -> style_bitmask:get(fsStyle)), --TBSTYLE_*
 		'text', 'pString', wcs, pass, --used as pointer
 		'text_index', 'iString', pass, pass, --used as index
 	},
-	bitfields = {
-		state = {'__state', '__state', 'TBSTATE'},
+	bitfields: {
+		state: {'__state', '__state', 'TBSTATE'},
 	},
-	defaults = {
-		state = {enabled = true},
+	defaults: {
+		state: {enabled: true},
 	},
 }
 
-function Toolbar_AddButton(tb, button) --TODO: support an array of buttons
-	button = TBBUTTON(button)
-	SNDMSG(tb, TB_BUTTONSTRUCTSIZE, ffi.sizeof(button))
-	checknz(SNDMSG(tb, TB_ADDBUTTONS, 1, ffi.cast('TBBUTTON*', button)))
-	SNDMSG(tb, TB_AUTOSIZE)
-end
+Toolbar_AddButton = (tb, button) -> --TODO: support an array of buttons
+	button = TBBUTTON button
+	SNDMSG tb, TB_BUTTONSTRUCTSIZE, ffi.sizeof(button)
+	checknz SNDMSG(tb, TB_ADDBUTTONS, 1, ffi.cast('TBBUTTON*', button))
+	SNDMSG tb, TB_AUTOSIZE
 
-function Toolbar_InsertButton(tb, i, button)
-	button = TBBUTTON(button)
-	SNDMSG(tb, TB_BUTTONSTRUCTSIZE, ffi.sizeof(button))
-	checktrue(SNDMSG(tb, TB_INSERTBUTTON, countfrom0(i), ffi.cast('BBUTTON*', button)))
-end
+Toolbar_InsertButton = (tb, i, button) ->
+	button = TBBUTTON button
+	SNDMSG tb, TB_BUTTONSTRUCTSIZE, ffi.sizeof(button)
+	checktrue SNDMSG(tb, TB_INSERTBUTTON, countfrom0(i), ffi.cast('BBUTTON*', button))
 
-function Toolbar_DeleteButton(tb, i)
-	return checktrue(SNDMSG(tb, countfrom0(i)))
-end
+Toolbar_DeleteButton = (tb, i) -> checktrue SNDMSG(tb, countfrom0 i)
 
-function Toolbar_GetButtonCount(tb)
-	return checkpoz(SNDMSG(tb, TB_BUTTONCOUNT))
-end
+Toolbar_GetButtonCount = (tb) -> checkpoz(SNDMSG(tb, TB_BUTTONCOUNT))
 
 TBIF_IMAGE    = 0x00000001
 TBIF_TEXT     = 0x00000002
@@ -203,7 +202,7 @@ TBIF_COMMAND  = 0x00000020
 TBIF_SIZE     = 0x00000040
 TBIF_BYINDEX  = 0x80000000 -- wParam in Get/SetButtonInfo is an index, not id
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct {
     UINT cbSize;
     DWORD dwMask;
@@ -215,12 +214,11 @@ typedef struct {
     DWORD_PTR lParam;
     LPWSTR pszText;
     int cchText;
-} TBBUTTONINFOW, *LPTBBUTTONINFOW;
-]]
+} TBBUTTONINFOW, *LPTBBUTTONINFOW;]]
 
 TBBUTTONINFO = struct{
-	ctype = 'TBBUTTONINFOW', size = 'cbSize', mask = 'dwMask',
-	fields = mfields{
+	ctype: 'TBBUTTONINFOW', size: 'cbSize', mask: 'dwMask',
+	fields: mfields {
 		'id', 'idCommand', TBIF_COMMAND, pass, pass,
 		'i', 'iImage', TBIF_IMAGE, countfrom0, countfrom1,
 		'text', 'pszText', TBIF_TEXT, wcs, mbs,
@@ -236,21 +234,17 @@ TBBUTTONINFO = struct{
 TB_GETBUTTONINFO = (WM_USER + 63)
 TB_SETBUTTONINFO = (WM_USER + 64)
 
-function Toolbar_GetButtonInfo(tb, i, info)
+Toolbar_GetButtonInfo = (tb, i, info) ->
 	info = TBBUTTONINFO:setmask(info)
-	if bit.band(info.fsState, TBIF_BYINDEX) ~= 0 then
-		i = countfrom0(i)
-	end
-	checkpoz(SNDMSG(tb, TB_GETBUTTONINFO, i, ffi.cast('TBBUTTONINFOW*', info)))
-	return info
-end
+	if bit.band(info.fsState, TBIF_BYINDEX) != 0
+		i = countfrom0 i
+	checkpoz SNDMSG(tb, TB_GETBUTTONINFO, i, ffi.cast('TBBUTTONINFOW*', info))
+	info
 
-function Toolbar_SetButtonInfo(tb, i, info)
-	info = TBBUTTONINFO(info)
-	if bit.band(info.fsState, TBIF_BYINDEX) ~= 0 then i = countfrom0(i) end
-	checkpoz(SNDMSG(tb, TB_SETBUTTONINFO, i, ffi.cast('TBBUTTONINFOW*', info)))
-end
-
+Toolbar_SetButtonInfo = (tb, i, info) ->
+	info = TBBUTTONINFO info
+	if bit.band(info.fsState, TBIF_BYINDEX) != 0 then i = countfrom0 i
+	checkpoz SNDMSG(tb, TB_SETBUTTONINFO, i, ffi.cast('TBBUTTONINFOW*', info))
 
 CMB_MASKED               = 0x02
 
@@ -321,18 +315,12 @@ TB_SETUNICODEFORMAT      = CCM_SETUNICODEFORMAT
 TB_GETUNICODEFORMAT      = CCM_GETUNICODEFORMAT
 TB_MAPACCELERATORW       = (WM_USER + 90)  -- wParam == ch, lParam int * pidBtn
 
-
-function Toolbar_GetButtonText(tb, i, buf)
-	if not buf then
-		local sz = checkpoz(SNDMSG(tb, TB_GETBUTTONTEXTW, countfrom0(i)))
-		buf = WCS(sz)
-	end
-	checkpoz(SNDMSG(tb, TB_GETBUTTONTEXTW, i, buf))
-	return buf or mbs(buf)
-end
+Toolbar_GetButtonText = (tb, i, buf = WCS checkpoz(SNDMSG(tb, TB_GETBUTTONTEXTW, countfrom0 i))) ->
+	checkpoz SNDMSG(tb, TB_GETBUTTONTEXTW, i, buf)
+	buf or mbs(buf)
 
 -- Custom Draw Structure
-ffi.cdef[[
+ffi.cdef [[
 typedef struct _NMTBCUSTOMDRAW {
     NMCUSTOMDRAW nmcd;
     HBRUSH hbrMonoDither;
@@ -348,8 +336,7 @@ typedef struct _NMTBCUSTOMDRAW {
     int nStringBkMode;
     int nHLStringBkMode;
     int iListGap;
-} NMTBCUSTOMDRAW, * LPNMTBCUSTOMDRAW;
-]]
+} NMTBCUSTOMDRAW, * LPNMTBCUSTOMDRAW;]]
 
 -- Toolbar custom draw return flags
 TBCDRF_NOEDGES               = 0x00010000  -- Don't draw button edges
@@ -361,10 +348,10 @@ TBCDRF_BLENDICON             = 0x00200000  -- Use ILD_BLEND50 on the icon image
 TBCDRF_NOBACKGROUND          = 0x00400000  -- Use ILD_BLEND50 on the icon image
 TBCDRF_USECDCOLORS           = 0x00800000  -- Use CustomDrawColors to RenderText regardless of VisualStyle
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct tagTBADDBITMAP {
-        HINSTANCE       hInst;
-        UINT_PTR        nID;
+    HINSTANCE       hInst;
+    UINT_PTR        nID;
 } TBADDBITMAP, *LPTBADDBITMAP;
 
 typedef struct tagTBSAVEPARAMSW {
@@ -376,21 +363,19 @@ typedef struct tagTBSAVEPARAMSW {
 typedef struct {
     int   iButton;
     DWORD dwFlags;
-} TBINSERTMARK, * LPTBINSERTMARK;
-]]
+} TBINSERTMARK, * LPTBINSERTMARK;]]
 
 TBIMHT_AFTER       = 0x00000001 -- TRUE = insert After iButton, otherwise before
 TBIMHT_BACKGROUND  = 0x00000002 -- TRUE iff missed buttons completely
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct {
     HINSTANCE       hInstOld;
     UINT_PTR        nIDOld;
     HINSTANCE       hInstNew;
     UINT_PTR        nIDNew;
     int             nButtons;
-} TBREPLACEBITMAP, *LPTBREPLACEBITMAP;
-]]
+} TBREPLACEBITMAP, *LPTBREPLACEBITMAP;]]
 
 TBBF_LARGE               = 0x0001
 
@@ -414,7 +399,7 @@ TBMF_PAD                 = 0x00000001
 TBMF_BARPAD              = 0x00000002
 TBMF_BUTTONSPACING       = 0x00000004
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct {
     UINT cbSize;
     DWORD dwMask;
@@ -425,8 +410,7 @@ typedef struct {
     int cyBarPad;
     int cxButtonSpacing;   // BUTTONSPACING
     int cyButtonSpacing;
-} TBMETRICS, * LPTBMETRICS;
-]]
+} TBMETRICS, * LPTBMETRICS;]]
 
 TB_GETMETRICS            = (WM_USER + 101)
 TB_SETMETRICS            = (WM_USER + 102)
@@ -435,33 +419,32 @@ TB_SETPRESSEDIMAGELIST   = (WM_USER + 104)
 TB_GETPRESSEDIMAGELIST   = (WM_USER + 105)
 TB_SETWINDOWTHEME        = CCM_SETWINDOWTHEME
 
-TBN_FIRST                = tonumber(ffi.cast('UINT', -700))
+TBN_FIRST                = tonumber ffi.cast('UINT', -700)
 
-update(WM_NOTIFY_NAMES, constants{
-	TBN_GETBUTTONINFOA       = TBN_FIRST-0,
-	TBN_BEGINDRAG            = TBN_FIRST-1,
-	TBN_ENDDRAG              = TBN_FIRST-2,
-	TBN_BEGINADJUST          = TBN_FIRST-3,
-	TBN_ENDADJUST            = TBN_FIRST-4,
-	TBN_RESET                = TBN_FIRST-5,
-	TBN_QUERYINSERT          = TBN_FIRST-6,
-	TBN_QUERYDELETE          = TBN_FIRST-7,
-	TBN_TOOLBARCHANGE        = TBN_FIRST-8,
-	TBN_CUSTHELP             = TBN_FIRST-9,
-	TBN_DROPDOWN             = TBN_FIRST-10,
-	TBN_GETOBJECT            = TBN_FIRST-12,
-})
+update WM_NOTIFY_NAMES, constants{
+  TBN_GETBUTTONINFOA: TBN_FIRST-0,
+  TBN_BEGINDRAG: TBN_FIRST-1,
+  TBN_ENDDRAG: TBN_FIRST-2,
+  TBN_BEGINADJUST: TBN_FIRST-3,
+  TBN_ENDADJUST: TBN_FIRST-4,
+  TBN_RESET: TBN_FIRST-5,
+  TBN_QUERYINSERT: TBN_FIRST-6,
+  TBN_QUERYDELETE: TBN_FIRST-7,
+  TBN_TOOLBARCHANGE: TBN_FIRST-8,
+  TBN_CUSTHELP: TBN_FIRST-9,
+  TBN_DROPDOWN: TBN_FIRST-10,
+  TBN_GETOBJECT: TBN_FIRST-12,
+}
 
 -- Structure for TBN_HOTITEMCHANGE notification
-ffi.cdef[[
+ffi.cdef [[
 typedef struct tagNMTBHOTITEM
 {
     NMHDR   hdr;
     int     idOld;
     int     idNew;
     DWORD   dwFlags;           // HICF_*
-} NMTBHOTITEM, * LPNMTBHOTITEM;
-]]
+} NMTBHOTITEM, * LPNMTBHOTITEM;]]
 
 -- Hot item change flags
 HICF_OTHER           = 0x00000000
@@ -494,7 +477,7 @@ TBN_WRAPACCELERATOR      = (TBN_FIRST - 26)
 TBN_DRAGOVER             = (TBN_FIRST - 27)
 TBN_MAPACCELERATOR       = (TBN_FIRST - 28)
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct tagNMTBSAVE
 {
     NMHDR hdr;
@@ -525,14 +508,13 @@ typedef struct tagNMTBGETINFOTIPW
     int cchTextMax;
     int iItem;
     LPARAM lParam;
-} NMTBGETINFOTIPW, *LPNMTBGETINFOTIPW;
-]]
+} NMTBGETINFOTIPW, *LPNMTBGETINFOTIPW;]]
 
 TBNF_IMAGE               = 0x00000001
 TBNF_TEXT                = 0x00000002
 TBNF_DI_SETITEM          = 0x10000000
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct {
     NMHDR hdr;
     DWORD dwMask;      // [in] Specifies the values requested .[out] Client ask the data to be set for future use
@@ -541,15 +523,14 @@ typedef struct {
     int iImage;        // [out] image index
     LPWSTR pszText;    // [out] new text for item
     int cchText;       // [in] size of buffer pointed to by pszText
-} NMTBDISPINFOW, *LPNMTBDISPINFOW;
-]]
+} NMTBDISPINFOW, *LPNMTBDISPINFOW;]]
 
 -- Return codes for TBN_DROPDOWN
 TBDDRET_DEFAULT          = 0
 TBDDRET_NODEFAULT        = 1
 TBDDRET_TREATPRESSED     = 2       -- Treat as a standard press button
 
-ffi.cdef[[
+ffi.cdef [[
 typedef struct tagNMTOOLBARW {
     NMHDR     hdr;
     int       i;
@@ -560,9 +541,6 @@ typedef struct tagNMTOOLBARW {
 } NMTOOLBARW, *LPNMTOOLBARW;
 
 typedef NMTOOLBARW   TBNOTIFY;
-typedef LPNMTOOLBARW LPTBNOTIFY;
-]]
+typedef LPNMTOOLBARW LPTBNOTIFY;]]
 
-function NM.TBN_DROPDOWN(hdr)
-	return ffi.cast('NMTOOLBARW*', hdr)
-end
+NM.TBN_DROPDOWN = (hdr) -> ffi.cast('NMTOOLBARW*', hdr)

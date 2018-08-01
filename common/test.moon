@@ -15,11 +15,11 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -- ================================================================================
 
-term = require "term"
+term = require "term_wrapper"
 
 eq = (expr, expect, silent = false) ->
   ok = expr == expect
-  term.panic "err" if ok != true and silent == false
+  term.panic debug.traceback! if ok != true and silent == false
   
   ok
 

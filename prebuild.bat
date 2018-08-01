@@ -30,6 +30,7 @@ call:Clone argparse http://github.com/mpeterv/argparse
 call:Clone lpeg http://github.com/Florastamine/LPeg-mirror
 call:Clone lfs http://github.com/keplerproject/luafilesystem
 call:Clone lua-cjson http://github.com/mpx/lua-cjson
+call:Clone pdcurses https://github.com/wmcbrine/PDCurses
 call:Clone SDL http://github.com/spurious/SDL-mirror
 call:Clone luasdl2 http://github.com/Tangent128/luasdl2
 call:FetchSDL2
@@ -100,8 +101,13 @@ call:PostProcess
     curl --output %ROOT%\SDL2_ttf-2.0.14.zip http://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.zip
   )
   
-  unzip %ROOT%\SDL2_image-2.0.3.zip -d %ROOT%
-  unzip %ROOT%\SDL2_ttf-2.0.14.zip -d %ROOT%
+  if not exist %ROOT%\SDL2_image-2.0.3\version.rc (
+    unzip %ROOT%\SDL2_image-2.0.3.zip -d %ROOT%
+  )
+  
+  if not exist %ROOT%\SDL2_ttf-2.0.14\version.rc (
+    unzip %ROOT%\SDL2_ttf-2.0.14.zip -d %ROOT%
+  )
   
   exit /b
 

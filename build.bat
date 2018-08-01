@@ -28,6 +28,7 @@ if not exist .\thirdparty\luajit\Makefile (
 set _PS_LUA_PATH=%~dp0\thirdparty\luajit
 set _PS_LUASDL2_PATH=%~dp0\thirdparty\luasdl2
 set _PS_CJSON_PATH=%~dp0\thirdparty\lua-cjson
+set _PS_PDCURSES_PATH=%~dp0\thirdparty\pdcurses
 set _PS_LFS_PATH=%~dp0\thirdparty\lfs
 set _PS_LPEG_PATH=%~dp0\thirdparty\lpeg
 set _PS_ZIP_PATH=%~dp0\modules\zip
@@ -61,8 +62,6 @@ call:Print "Building Lua CJSON"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_CJSON_PATH%\cjson.dll %_PS_CJSON_PATH%\*.c -llua51 >nul 2>&1
 
 call:Print "Building SDL2"
-  rmdir /s /q %_PS_LUASDL2_PATH%\build >nul 2>&1
-  mkdir %_PS_LUASDL2_PATH%\build >nul 2>&1
   
   set SDLDIR=%~dp0\thirdparty\SDL_binaries
   set SDLTTFDIR=%~dp0\thirdparty\SDL_binaries
@@ -76,6 +75,12 @@ call:Print "Building SDL2"
   %_CMAKE% .. -G "MinGW Makefiles" -DWITH_MIXER=Off -DWITH_NET=Off -DWITH_DOCS=Off -DWITH_TTF=On -DWITH_IMAGE=On -DWITH_LUAVER=JIT -DSDL2_INCLUDE_DIR=%SDL_INCLUDE_DIR% -DSDL2_IMAGE_INCLUDE_DIR=%SDL_IMAGE_INCLUDE_DIR% -DSDL2_TTF_INCLUDE_DIR=%SDL_TTF_INCLUDE_DIR%
   popd
   %_MAKE% --directory=%_PS_LUASDL2_PATH%\build -j%_MAKE_PARALLEL%
+
+call:Print "Building PDCurses"
+  pushd %_PS_PDCURSES_PATH%\wincon
+  %_MAKE% -j%_MAKE_PARALLEL%
+  rename pdcurses.a libpdcurses.a
+  popd
 
 call:Print "Finalizing"
   move %_PS_LUA_PATH%\src\luajit.exe %_PS_RUNTIME_PATH% >nul 2>&1

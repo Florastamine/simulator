@@ -323,7 +323,7 @@ testAPI = () ->
       if v.method(w.value, w.expect, true) == true
         term.info "success"
       else
-        term.panic "failed"
+        term.panic "failed (value: #{w.value}, expected: #{w.expect})"
 
 testFFI = () ->
   term.info "Performing FFI tests (malloc()/free())"

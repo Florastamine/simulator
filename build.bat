@@ -35,6 +35,7 @@ set _PS_ZIP_PATH=%~dp0\modules\zip
 set _PS_UUID_PATH=%~dp0\modules\uuid
 set _PS_BEEP_PATH=%~dp0\modules\beep
 set _PS_TERM_PATH=%~dp0\modules\term
+set _PS_BIOS_PATH=%~dp0\modules\bios
 set _PS_RUNTIME_PATH=%~dp0\runtime
 
 call:Print "Building LuaJIT"
@@ -62,6 +63,7 @@ call:Print "Building Lua CJSON"
   %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L. -o %_PS_CJSON_PATH%\cjson.dll %_PS_CJSON_PATH%\*.c -llua51 >nul 2>&1
 
 call:Print "Building SDL2"
+  mkdir %_PS_LUASDL2_PATH%\build >nul 2>&1
   
   set SDLDIR=%~dp0\thirdparty\SDL_binaries
   set SDLTTFDIR=%~dp0\thirdparty\SDL_binaries
@@ -82,6 +84,9 @@ call:Print "Building PDCurses"
   rename pdcurses.a libpdcurses.a
   popd
 
+call:Print "Building BIOS"
+  %_CC% %_CFLAGS% -shared -s -I%_PS_LUA_PATH%\src -L%_PS_LUA_PATH%\src -L%_PS_PDCURSES_PATH%\wincon -I%_PS_PDCURSES_PATH% -o %_PS_BIOS_PATH%\bios.dll %_PS_BIOS_PATH%\*.c -llua51 -lpdcurses
+
 call:Print "Finalizing"
   move %_PS_LUA_PATH%\src\luajit.exe %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUA_PATH%\src\lua51.dll %_PS_RUNTIME_PATH% >nul 2>&1
@@ -92,6 +97,7 @@ call:Print "Finalizing"
   move %_PS_ZIP_PATH%\zip.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_TERM_PATH%\term.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_BEEP_PATH%\beep.dll %_PS_RUNTIME_PATH% >nul 2>&1
+  move %_PS_BIOS_PATH%\bios.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\SDL.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\sdl-image\image.dll %_PS_RUNTIME_PATH% >nul 2>&1
   move %_PS_LUASDL2_PATH%\build\sdl-ttf\ttf.dll %_PS_RUNTIME_PATH% >nul 2>&1

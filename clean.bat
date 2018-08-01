@@ -35,14 +35,20 @@ set _PS_RUNTIME_PATH=%~dp0\runtime
 call:Print "Cleaning"
   set DEL=del /f /s /q
   
+  rem Runtime folder
   rd /s /q %_PS_RUNTIME_PATH% >nul 2>&1
   mkdir %_PS_RUNTIME_PATH% >nul 2>&1
   
-  %DEL% %_PS_LUA_PATH%\*.o
-  %DEL% %_PS_LUA_PATH%\*.a
-  %DEL% %_PS_LUA_PATH%\*.dll
-  %DEL% %_PS_LUA_PATH%\*.exe
+  rem SDL2 build tree
+  rmdir /s /q %_PS_LUASDL2_PATH%\build >nul 2>&1
   
+  rem LuaJIT build tree
+  %DEL% %_PS_LUA_PATH%\*.o >nul 2>&1
+  %DEL% %_PS_LUA_PATH%\*.a >nul 2>&1
+  %DEL% %_PS_LUA_PATH%\*.dll >nul 2>&1
+  %DEL% %_PS_LUA_PATH%\*.exe >nul 2>&1
+  
+  rem Lua code generated from the mc compiler
   for %%p in (glue color combobox cursor icon sync toolbar types) do (
     %DEL% common\winapi\%%p.lua
   )

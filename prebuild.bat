@@ -1,3 +1,5 @@
+@echo off
+
 rem ================================================================================
 rem Copyright (C) 2018, Florastamine
 rem 
@@ -14,8 +16,6 @@ rem
 rem You should have received a copy of the GNU General Public License
 rem along with this program.  If not, see <https://www.gnu.org/licenses/>.
 rem ================================================================================
-
-@echo off
 
 call vars.bat
 

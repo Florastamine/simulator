@@ -16,8 +16,6 @@
 -- ================================================================================
 
 term = require "term_wrapper"
-glue = require "glue"
-ffi  = require "ffi"
 
 eq       = require("test").eq
 eq_array = require("test").eq_array

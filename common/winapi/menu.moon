@@ -1,11 +1,30 @@
+-- ================================================================================
+-- Copyright (C) 2018, Florastamine
+-- 
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-- ================================================================================
 
---proc/controls/menu: standard menu control
---Written by Cosmin Apreutesei. Public Domain.
+-- Note: Don't define time_t because it's 64bit in windows but 32bit in mingw: use explicit types!
+-- Note: SIZE has w and h unioned to cx and cy and these are the ones used throughout.
+-- Note: RECT has x1, y1, x2, y2 unioned to left, right, top, bottom and these are the ones used throughout.
 
-setfenv(1, require'winapi')
-require'winapi.winuser'
+export *
 
-ffi.cdef[[
+setfenv 1, require "winapi"
+require "winapi.winuser"
+
+ffi.cdef [[
 HMENU CreateMenu(void);
 HMENU CreatePopupMenu(void);
 BOOL DestroyMenu(HMENU hMenu);
@@ -88,36 +107,23 @@ typedef struct tagTPMPARAMS
 }   TPMPARAMS;
 typedef TPMPARAMS  *LPTPMPARAMS;
 
-BOOL TrackPopupMenuEx(HMENU, UINT, int, int, HWND, LPTPMPARAMS);
-]]
+BOOL TrackPopupMenuEx(HMENU, UINT, int, int, HWND, LPTPMPARAMS);]]
 
-function CreateMenuBar()
-	return own(checkh(C.CreateMenu()), DestroyMenu)
-end
+CreateMenuBar = -> own checkh(C.CreateMenu!), DestroyMenu
+CreateMenu = -> own checkh(C.CreatePopupMenu()), DestroyMenu
 
-function CreateMenu()
-	return own(checkh(C.CreatePopupMenu()), DestroyMenu)
-end
+DestroyMenu = (menu) ->
+	checknz C.DestroyMenu(menu)
+	disown menu
 
-function DestroyMenu(menu)
-	checknz(C.DestroyMenu(menu))
-	disown(menu)
-end
+GetMenu = (hwnd) -> ptr C.GetMenu(hwnd)
+SetMenu = (hwnd, menu) ->
+	oldmenu = own GetMenu(hwnd), DestroyMenu
+	checknz C.SetMenu(hwnd, menu)
+	disown menu
+	oldmenu
 
-function GetMenu(hwnd)
-	return ptr(C.GetMenu(hwnd))
-end
-
-function SetMenu(hwnd, menu)
-	local oldmenu = own(GetMenu(hwnd), DestroyMenu)
-	checknz(C.SetMenu(hwnd, menu))
-	disown(menu)
-	return oldmenu
-end
-
-function DrawMenuBar(hwnd)
-	checknz(C.DrawMenuBar(hwnd))
-end
+DrawMenuBar = (hwnd) -> checknz C.DrawMenuBar(hwnd)
 
 MF_INSERT            = 0x00000000
 MF_CHANGE            = 0x00000080
@@ -189,8 +195,8 @@ HBMMENU_POPUP_MAXIMIZE      = ffi.cast('HBITMAP', 10)
 HBMMENU_POPUP_MINIMIZE      = ffi.cast('HBITMAP', 11)
 
 MENUITEMINFO = struct{
-	ctype = 'MENUITEMINFOW', size = 'cbSize', mask = 'fMask',
-	fields = mfields{
+	ctype: 'MENUITEMINFOW', size: 'cbSize', mask: 'fMask',
+	fields: mfields{
 		'id',             'wID',               MIIM_ID, pass, pass,
 		'text',           'dwTypeData',        MIIM_STRING, wcs, mbs,
 		'submenu',        'hSubMenu',          MIIM_SUBMENU, ptr, ptr,
@@ -202,38 +208,30 @@ MENUITEMINFO = struct{
 	},
 }
 
-function GetSubMenu(menu, i)
-	return ptr(C.GetSubMenu(menu, countfrom0(i)))
-end
+GetSubMenu = (menu, i) -> ptr C.GetSubMenu(menu, countfrom0(i))
 
-function InsertMenuItem(menu, i, info, byposition)
-	if not info then i,info = nil,i end --i is optional
-	checknz(C.InsertMenuItemW(menu, countfrom0(i), byposition, MENUITEMINFO(info)))
-	disown(info.submenu)
-end
+InsertMenuItem = (menu, i, info, byposition) ->
+	if not info then i , info = nil, i
+	checknz C.InsertMenuItemW(menu, countfrom0(i), byposition, MENUITEMINFO info)
+	disown info.submenu
 
-function SetMenuItemInfo(menu, i, info, byposition)
-	local oldsubmenu = GetSubMenu(menu, i)
-	checknz(C.SetMenuItemInfoW(menu, countfrom0(i), byposition, MENUITEMINFO(info)))
-	disown(info.submenu)
-	own(oldsubmenu, DestroyMenu)
-end
+SetMenuItemInfo = (menu, i, info, byposition) ->
+	oldsubmenu = GetSubMenu menu, i
+	checknz C.SetMenuItemInfoW(menu, countfrom0(i), byposition, MENUITEMINFO info)
+	disown info.submenu
+	own oldsubmenu, DestroyMenu
 
-function GetMenuItemInfo(menu, i, byposition, info)
-	info = MENUITEMINFO:setmask(info)
-	checknz(C.GetMenuItemInfoW(menu, countfrom0(i), byposition, info))
-	return info
-end
+GetMenuItemInfo = (menu, i, byposition, info) ->
+	info = MENUITEMINFO\setmask info
+	checknz C.GetMenuItemInfoW(menu, countfrom0(i), byposition, info)
+	info
 
-function RemoveMenuItem(menu, i, byposition)
-	local oldsubmenu = GetSubMenu(menu, i)
-	checknz(C.RemoveMenu(menu, countfrom0(i), byposition and MF_BYPOSITION or MF_BYCOMMAND))
-	return own(oldsubmenu, DestroyMenu)
-end
+RemoveMenuItem = (menu, i, byposition) ->
+	oldsubmenu = GetSubMenu menu, i
+	checknz C.RemoveMenu(menu, countfrom0(i), byposition and MF_BYPOSITION or MF_BYCOMMAND)
+	own oldsubmenu, DestroyMenu
 
-function GetMenuItemCount(menu)
-	return checkpoz(C.GetMenuItemCount(menu))
-end
+GetMenuItemCount = (menu) -> checkpoz C.GetMenuItemCount(menu)
 
 TPM_LEFTBUTTON      = 0x0000
 TPM_RIGHTBUTTON     = 0x0002
@@ -256,17 +254,13 @@ TPM_NOANIMATION     = 0x4000
 TPM_LAYOUTRTL       = 0x8000
 TPM_WORKAREA        = 0x10000
 
-TPMPARAMS = struct{
-	ctype = 'TPMPARAMS', size = 'cbSize', fields = {}
-}
+TPMPARAMS = struct{ ctype: 'TPMPARAMS', size: 'cbSize', fields: {} }
 
-function TrackPopupMenu(menu, hwnd, x, y, TPM, tpmp)
-	if tpmp then tpmp = TPMPARAMS(tpmp) end
-	return C.TrackPopupMenuEx(menu, flags(TPM), x, y, hwnd, tpmp)
-end
+TrackPopupMenu = (menu, hwnd, x, y, TPM, tpmp) ->
+	if tpmp then tpmp = TPMPARAMS tpmp
+	C.TrackPopupMenuEx menu, flags TPM, x, y, hwnd, tpmp
 
---get/set menu info
-
+-- get/set menu info
 ffi.cdef[[
 typedef struct tagMENUINFO
 {
@@ -281,8 +275,7 @@ typedef struct tagMENUINFO
 typedef MENUINFO const  *LPCMENUINFO;
 
 BOOL GetMenuInfo(HMENU, LPMENUINFO);
-BOOL SetMenuInfo(HMENU, LPCMENUINFO);
-]]
+BOOL SetMenuInfo(HMENU, LPCMENUINFO);]]
 
 MNS_NOCHECK         = 0x80000000
 MNS_MODELESS        = 0x40000000
@@ -299,8 +292,8 @@ MIM_STYLE                   = 0x00000010
 MIM_APPLYTOSUBMENUS         = 0x80000000
 
 MENUINFO = struct{
-	ctype = 'MENUINFO', size = 'cbSize', mask = 'fMask',
-	fields = mfields{
+	ctype: 'MENUINFO', size: 'cbSize', mask: 'fMask',
+	fields: mfields{
 		'max_height', 'cyMax', MIM_MAXHEIGHT, pass, pass,
 		'background', 'hbrBack', MIM_BACKGROUND, pass, ptr,
 		'help_id', 'dwContextHelpID', MIM_HELPID, pass, pass,
@@ -310,31 +303,22 @@ MENUINFO = struct{
 	},
 }
 
-function GetMenuInfo(menu, info)
-	info = MENUINFO:setmask(info)
-	checknz(C.GetMenuInfo(menu, info))
-	return info
-end
+GetMenuInfo = (menu, info) ->
+	info = MENUINFO\setmask info
+	checknz C.GetMenuInfo(menu, info)
+	info
 
-function SetMenuInfo(menu, info)
-	checknz(C.SetMenuInfo(menu, MENUINFO(info)))
-end
+SetMenuInfo = (menu, info) -> checknz C.SetMenuInfo(menu, MENUINFO info)
 
-function CheckMenuItem(menu, i, byposition, checked)
-	return checkpoz(C.CheckMenuItem(menu, countfrom0(i),
-		bit.bor(byposition and MF_BYPOSITION or MF_BYCOMMAND,
-					checked and MF_CHECKED or MF_UNCHECKED))) == MF_CHECKED
-end
+CheckMenuItem = (menu, i, byposition, checked) ->
+	checkpoz(C.CheckMenuItem(menu, countfrom0(i),
+		bit.bor(byposition and MF_BYPOSITION or MF_BYCOMMAND, checked and MF_CHECKED or MF_UNCHECKED))) == MF_CHECKED
 
-function GetMenuState(menu, i, byposition) --there's no SetMenuState.
-	return checkpoz(C.GetMenuState(menu, countfrom0(i), byposition and MF_BYPOSITION or MF_BYCOMMAND))
-end
+GetMenuState = (menu, i, byposition) -> checkpoz C.GetMenuState(menu, countfrom0(i), byposition and MF_BYPOSITION or MF_BYCOMMAND)
 
-function EnableMenuItem(menu, i, byposition, enabled)
-	return checkpoz(C.EnableMenuItem(menu, countfrom0(i),
+EnableMenuItem = (menu, i, byposition, enabled) ->
+	checkpoz(C.EnableMenuItem(menu, countfrom0(i),
 		bit.bor(byposition and MF_BYPOSITION or MF_BYCOMMAND,
 					enabled == true and MFS_ENABLED or
 					enabled == false and MFS_DISABLED or
-					flags(enabled))))
-end
-
+					flags enabled)))

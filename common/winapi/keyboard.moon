@@ -1,15 +1,36 @@
+-- ================================================================================
+-- Copyright (C) 2018, Florastamine
+-- 
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-- ================================================================================
 
---proc/input/keyboard: Keyboard API
---Written by Cosmin Apreutesei. Public Domain.
+-- Removed IsAltGr().
 
-setfenv(1, require'winapi')
+-- Note: Don't define time_t because it's 64bit in windows but 32bit in mingw: use explicit types!
+-- Note: SIZE has w and h unioned to cx and cy and these are the ones used throughout.
+-- Note: RECT has x1, y1, x2, y2 unioned to left, right, top, bottom and these are the ones used throughout.
 
---NOTE: can't distinguish between cursor keys and numpad cursor keys with GetKeyState(), but you can on WM_KEYDOWN et al.
---NOTE: pressing both shift keys and then depressing one of them doesn't trigger WM_KEYUP, but does trigger WM_INPUT.
---NOTE: flags.prev_key_state is a single flag for both left and right ctrl/alt/shift, not for each physical key.
---NOTE: AltGr is LCTRL followed by RALT with the same message timestamp (which we can use to distinguish from CTRL+ALT).
---NOTE: To distinguish Ctrl+Break from Ctrl+ScrollLock and Break from Ctrl+NumLock, check RI_KEY_E1 and RI_KEY_E0 on WM_INPUT.
---NOTE: Ctrl+NumLock doesn't change the NumLock state, unlike other keys + NumLock (same with Ctrl+ScrollLock).
+export *
+
+setfenv 1, require "winapi"
+
+-- NOTE: can't distinguish between cursor keys and numpad cursor keys with GetKeyState(), but you can on WM_KEYDOWN et al.
+-- NOTE: pressing both shift keys and then depressing one of them doesn't trigger WM_KEYUP, but does trigger WM_INPUT.
+-- NOTE: flags.prev_key_state is a single flag for both left and right ctrl/alt/shift, not for each physical key.
+-- NOTE: AltGr is LCTRL followed by RALT with the same message timestamp (which we can use to distinguish from CTRL+ALT).
+-- NOTE: To distinguish Ctrl+Break from Ctrl+ScrollLock and Break from Ctrl+NumLock, check RI_KEY_E1 and RI_KEY_E0 on WM_INPUT.
+-- NOTE: Ctrl+NumLock doesn't change the NumLock state, unlike other keys + NumLock (same with Ctrl+ScrollLock).
 
 VK_LBUTTON        = 0x01
 VK_RBUTTON        = 0x02
@@ -204,7 +225,7 @@ VK_NONAME         = 0xFC
 VK_PA1            = 0xFD
 VK_OEM_CLEAR      = 0xFE
 
-ffi.cdef[[
+ffi.cdef [[
 UINT  GetKBCodePage(void);
 
 SHORT GetKeyState(int nVirtKey);
@@ -281,90 +302,52 @@ int   ToAsciiEx(UINT uVirtKey, UINT uScanCode, const BYTE *lpKeyState, LPWORD lp
 int   ToUnicodeEx(UINT wVirtKey, UINT wScanCode, const BYTE *lpKeyState,
 						LPWSTR pwszBuff, int cchBuff, UINT wFlags, HKL dwhkl);
 SHORT VkKeyScanExW(WCHAR ch, HKL dwhkl);
-UINT  MapVirtualKeyExW(UINT uCode, UINT uMapType, HKL dwhkl);
+UINT  MapVirtualKeyExW(UINT uCode, UINT uMapType, HKL dwhkl);]]
 
-]]
+GetKeyState = (vk) -> -- Down, toggled
+	state = C.GetKeyState flags(vk)
+	bit.band(state, 0x8000) != 0, bit.band(state, 1) != 0
 
-function GetKeyState(vk) --down, toggled
-	local state = C.GetKeyState(flags(vk))
-	return bit.band(state, 0x8000) ~= 0, bit.band(state, 1) ~= 0
-end
+GetAsyncKeyState = (vk) -> --down
+	bit.band(C.GetAsyncKeyState(flags(vk)), 0x8000) != 0
 
-function GetAsyncKeyState(vk) --down
-	return bit.band(C.GetAsyncKeyState(flags(vk)), 0x8000) ~= 0
-end
-
-local state
-function GetKeyboardState()
-	state = state or ffi.new'PBYTE[256]'
-	checknz(C.GetKeyboardState(state))
-	return state
-end
+__state__
+GetKeyboardState = ->
+  __state__ = __state__ or ffi.new("PBYTE[256]")
+  checknz C.GetKeyboardState(__state__)
+  __state__
 
 MAPVK_VK_TO_VSC    = 0
 MAPVK_VSC_TO_VK    = 1
 MAPVK_VK_TO_CHAR   = 2
 MAPVK_VSC_TO_VK_EX = 3
 
-function MapVirtualKey(code, maptype)
-	return C.MapVirtualKeyW(code, flags(maptype))
-end
+MapVirtualKey = (code, maptype) -> C.MapVirtualKeyW code, flags(maptype)
 
---messages
-
-local key_bitmask = bitmask{
-	extended_key = 2^24, --distinguish between numpad keys and the rest
-	context_code = 2^29, --0 for WM_KEYDOWN
-	prev_key_state = 2^30,
-	transition_state = 2^31, --0 for WM_KEYDOWN
+-- Messages
+__key_bitmask__ = bitmask{
+	extended_key: 2^24, --distinguish between numpad keys and the rest
+	context_code: 2^29, --0 for WM_KEYDOWN
+	prev_key_state: 2^30,
+	transition_state: 2^31, --0 for WM_KEYDOWN
 }
 
-local function get_bitrange(from, b1, b2)
-	return bit.band(bit.rshift(from, b1), 2^(b2-b1+1)-1)
-end
+__get_bitrange__ = (from_, b1, b2) -> bit.band(bit.rshift(from_, b1), 2^(b2-b1+1)-1)
 
-local function key_flags(lParam)
-	local t = key_bitmask:get(lParam)
-	t.repeat_count = get_bitrange(lParam, 0, 15) --always 1
-	t.scan_code = get_bitrange(lParam, 16, 23)
-	return t
-end
+__key_flags__ = (lParam) ->
+	t = __key_bitmask__\get lParam
+	t.repeat_count = __get_bitrange__ lParam, 0, 15 --always 1
+	t.scan_code = __get_bitrange__ lParam, 16, 23
+	t
 
-function WM.WM_KEYDOWN(wParam, lParam)
-	return tonumber(wParam), key_flags(lParam) --VK_*, flags
-end
+WM.WM_KEYDOWN = (wParam, lParam) -> tonumber(wParam), __key_flags__(lParam) --VK_*, flags
 
 WM.WM_KEYUP = WM.WM_KEYDOWN
 WM.WM_SYSKEYDOWN = WM.WM_KEYDOWN
 WM.WM_SYSKEYUP = WM.WM_KEYDOWN
 
-function WM.WM_CHAR(wParam, lParam)
-	return mbs(ffi.new('WCHAR[?]', 2, wParam, 0)), key_flags(lParam)
-end
+WM.WM_CHAR = (wParam, lParam) -> mbs(ffi.new('WCHAR[?]', 2, wParam, 0)), __key_flags__(lParam)
 
 WM.WM_SYSCHAR = WM.WM_CHAR
 WM.WM_DEADCHAR = WM.WM_CHAR
 WM.WM_SYSDEADCHAR = WM.WM_CHAR
-
---check for Alt-Gr, which is left-Ctrl followed by right-Alt where both messages have the same timestamp.
---pass the VK and flags of the current key event. note that the next event will be a right-Alt,
---so you need to filter that out, but not just by removing the event, because windows needs to interpret Alt-Gr too.
-function IsAltGr(VK, flags)
-	if VK == VK_CONTROL and flags.extended_key then
-		local time = GetMessageTime()
-		local ok, msg = PeekMessage(nil, 0, 0, PM_NOREMOVE)
-		if ok then
-			if (msg.message == WM_KEYDOWN
-				or msg.message == WM_SYSKEYDOWN
-				or msg.message == WM_KEYUP
-				or msg.message == WM_SYSKEYUP)
-				and msg.time == time
-				and msg.wParam == VK_MENU
-				and bit.band(msg.lParam, 2^24) ~= 0 --extended flag, meaning this is a right Alt
-			then
-				return true
-			end
-		end
-	end
-	return false
-end

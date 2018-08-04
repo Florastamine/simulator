@@ -105,16 +105,7 @@ call:Print "Finalizing"
   echo .\luajit.exe ..\control.lua ..\vm\vm.moon >> %_PS_RUNTIME_PATH%\launch.bat
 
 call:Print "Compiling scripts"
-  set MC=runtime\luajit .\tools\mc.lua
-  for %%p in (color combobox cursor icon sync toolbar types) do (
-    echo Compiling %%p.moon
-    %MC% common\winapi\%%p.moon
-  )
-  
-  for %%p in (glue) do (
-    echo Compiling %%p.moon
-    %MC% common\%%p.moon
-  )
+call compile
 
 :Print
 title %~1, please wait...

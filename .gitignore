@@ -11,6 +11,11 @@ com*/win*/icon.lua
 com*/win*/sync.lua
 com*/win*/toolbar.lua
 com*/win*/types.lua
+com*/win*/edit.lua
+com*/win*/menu.lua
+com*/win*/mouse.lua
+com*/win*/button.lua
+com*/win*/keyboard.lua
 
 # LuaJIT's
 *.[oa]
